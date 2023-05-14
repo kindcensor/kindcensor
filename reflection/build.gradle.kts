@@ -1,17 +1,6 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-    kotlin("jvm")
+    id("conventions")
 }
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "11"
-    }
-}
-
-
 
 dependencies {
     val apacheCommonsVersion: String by rootProject.extra
@@ -26,6 +15,3 @@ dependencies {
     implementation(project(":core"))
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
