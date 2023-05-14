@@ -11,10 +11,6 @@ tasks.withType<KotlinCompile> {
     }
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
-
 repositories {
     mavenCentral()
 }
