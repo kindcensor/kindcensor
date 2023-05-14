@@ -2,13 +2,14 @@ package org.kindcensor
 
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
-import org.kindcensor.DataMasker.DEFAULT_HIDDEN_STRING
-import org.kindcensor.DataMasker.DEFAULT_MASK
-import org.kindcensor.DataMasker.hide
-import org.kindcensor.DataMasker.initial
-import org.kindcensor.DataMasker.maskBeginning
-import org.kindcensor.DataMasker.maskEmail
-import org.kindcensor.DataMasker.maskEnding
+import org.kindcensor.core.DataMasker
+import org.kindcensor.core.DataMasker.DEFAULT_HIDDEN_STRING
+import org.kindcensor.core.DataMasker.DEFAULT_MASK
+import org.kindcensor.core.DataMasker.hide
+import org.kindcensor.core.DataMasker.initial
+import org.kindcensor.core.DataMasker.maskBeginning
+import org.kindcensor.core.DataMasker.maskEmail
+import org.kindcensor.core.DataMasker.maskEnding
 
 @Suppress("SpellCheckingInspection")
 class DataMaskerTest {
@@ -126,9 +127,9 @@ class DataMaskerTest {
     fun testMaskEmail() {
         assertThat(maskEmail(null)).isNull()
         assertThat(maskEmail("")).isEqualTo("****")
-        assertThat(maskEmail("a.borovkov@ftc.ru")).isEqualTo("********ov@f**.ru")
-        assertThat(maskEmail("a.borovkov@gmail.com")).isEqualTo("********ov@g****.com")
-        assertThat(maskEmail("a.borovkov@ftc.ru", mask = '#')).isEqualTo("########ov@f##.ru")
+        assertThat(maskEmail("a.ivanov@fff.ru")).isEqualTo("******ov@f**.ru")
+        assertThat(maskEmail("a.ivanov@gmail.com")).isEqualTo("******ov@g****.com")
+        assertThat(maskEmail("a.ivanov@fff.ru", mask = '#')).isEqualTo("######ov@f##.ru")
     }
 
     @Test

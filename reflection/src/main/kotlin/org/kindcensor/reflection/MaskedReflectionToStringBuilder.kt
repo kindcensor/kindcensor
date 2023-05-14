@@ -15,7 +15,7 @@ import java.lang.reflect.Field
  * Taking into account annotations like [ToStringInitial], [ToStringMaskBeginning], [ToStringMaskEnding],
  * [ToStringMaskEmail], [ToStringHide], etc.
  *
- * Note: as reflection based code it will be ~10-20 slower then regular hand-written [toString] method, and 1.5-2 times
+ * Note: as reflection based code it will be ~10-20 slower than regular handwritten [toString] method, and 1.5-2 times
  * slower then [org.apache.commons.lang3.builder.ToStringBuilder].
  *
  *      Benchmark                                           Mode  Cnt     Score    Error  Units

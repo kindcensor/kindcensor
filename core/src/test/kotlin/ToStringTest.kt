@@ -4,64 +4,41 @@ import org.apache.commons.lang3.builder.ToStringBuilder
 import org.apache.commons.lang3.builder.ToStringStyle
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
-import org.kindcensor.annotation.ToStringHide
-import org.kindcensor.annotation.ToStringInitial
-import org.kindcensor.annotation.ToStringMaskBeginning
-import org.kindcensor.annotation.ToStringMaskEmail
-import org.kindcensor.annotation.ToStringMaskEnding
-import org.kindcensor.annotation.*
+import org.kindcensor.core.DataMasker
 
 class ToStringTest {
 
     @Test
     fun testToStringSimple() {
         val data = TestDataSimple(
-            "Vladimir",
-            "Vladimirovich",
-            "Medvedev",
-            "v.v.medvev@mail.ru",
-            88002000600,
-            "Swordfish",
-            "random"
+            firstName = "Vladimir",
+            middleName = "Petrovich",
+            lastName = "Ivanov",
+            email = "v.p.ivanov@mail.ru",
+            phone = 88002000600,
+            password = "Swordfish",
+            data = "random"
         )
         Assertions.assertThat(data.toString())
             .isEqualTo(
-                "TestData(firstName='V.', middleName='V.', lastName='Me******', email='********ev@m***.ru', phone='*********00', password='********', data='random')"
+                "TestData(firstName='V.', middleName='P.', lastName='Iv****', email='********ov@m***.ru', phone='*********00', password='********', data='random')"
             )
     }
 
     @Test
     fun testToStringToStringBuilder() {
         val data = TestDataToStringBuilder(
-            "Vladimir",
-            "Vladimirovich",
-            "Medvedev",
-            "v.v.medvev@mail.ru",
-            88002000600,
-            "Swordfish",
-            "random"
+            firstName = "Vladimir",
+            middleName = "Petrovich",
+            lastName = "Ivanov",
+            email = "v.p.ivanov@mail.ru",
+            phone = 88002000600,
+            password = "Swordfish",
+            data = "random"
         )
         Assertions.assertThat(data.toString())
             .isEqualTo(
-                "ToStringTest.TestDataToStringBuilder[firstName=V.,middleName=V.,lastName=Me******,email=********ev@m***.ru,phone=*********00,password=********,data=random]"
-            )
-    }
-
-
-    @Test
-    fun testToStringReflectionToStringBuilder() {
-        val data = TestDataMaskedReflectionToStringBuilder(
-            "Vladimir",
-            "Vladimirovich",
-            "Medvedev",
-            "v.v.medvev@mail.ru",
-            88002000600,
-            "Swordfish",
-            "random"
-        )
-        Assertions.assertThat(data.toString())
-            .isEqualTo(
-                "ToStringTest.TestDataMaskedReflectionToStringBuilder[data=random,email=********ev@m***.ru,firstName=V.,lastName=Me******,middleName=V.,password=********,phone=*********00]"
+                "ToStringTest.TestDataToStringBuilder[firstName=V.,middleName=P.,lastName=Iv****,email=********ov@m***.ru,phone=*********00,password=********,data=random]"
             )
     }
 
@@ -111,17 +88,4 @@ class ToStringTest {
         }
     }
 
-    private data class TestDataMaskedReflectionToStringBuilder(
-        @field:ToStringInitial val firstName: String,
-        @field:ToStringInitial val middleName: String,
-        @field:ToStringMaskEnding val lastName: String,
-        @field:ToStringMaskEmail val email: String,
-        @field:ToStringMaskBeginning val phone: Long,
-        @field:ToStringHide val password: String,
-        val data: String
-    ) {
-
-        override fun toString(): String =
-            MaskedReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString()
-    }
 }

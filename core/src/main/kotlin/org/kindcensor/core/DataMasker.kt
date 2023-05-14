@@ -125,9 +125,9 @@ object DataMasker {
      *
      *    assertThat(maskEmail(null)).isNull()
      *    assertThat(maskEmail("")).isEqualTo("****")
-     *    assertThat(maskEmail("a.borovkov@ftc.ru")).isEqualTo("********ov@f**.ru")
+     *    assertThat(maskEmail("a.borovkov@fff.ru")).isEqualTo("********ov@f**.ru")
      *    assertThat(maskEmail("a.borovkov@gmail.com")).isEqualTo("********ov@g****.com")
-     *    assertThat(maskEmail("a.borovkov@ftc.ru", mask = '#')).isEqualTo("########ov@f##.ru")
+     *    assertThat(maskEmail("a.borovkov@fff.ru", mask = '#')).isEqualTo("########ov@f##.ru")
      *
      * @param email The email value
      * @param mask The mask char
