@@ -1,9 +1,14 @@
-package org.x27.datamasker;
+package org.kindcensor;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.jupiter.api.Test;
-import org.x27.datamasker.annotation.*;
+import org.kindcensor.annotation.ToStringHide;
+import org.kindcensor.annotation.ToStringInitial;
+import org.kindcensor.annotation.ToStringMaskBeginning;
+import org.kindcensor.annotation.ToStringMaskEmail;
+import org.kindcensor.annotation.ToStringMaskEnding;
+import org.kindcensor.annotation.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 

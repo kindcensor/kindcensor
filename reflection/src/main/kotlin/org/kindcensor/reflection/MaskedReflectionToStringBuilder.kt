@@ -1,8 +1,13 @@
-package org.x27.datamasker
+package org.kindcensor.reflection
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder
 import org.apache.commons.lang3.builder.ToStringStyle
-import org.x27.datamasker.annotation.*
+import org.kindcensor.annotation.ToStringHide
+import org.kindcensor.annotation.ToStringInitial
+import org.kindcensor.annotation.ToStringMaskBeginning
+import org.kindcensor.annotation.ToStringMaskEmail
+import org.kindcensor.annotation.ToStringMaskEnding
+import org.kindcensor.core.DataMasker
 import java.lang.reflect.Field
 
 /**

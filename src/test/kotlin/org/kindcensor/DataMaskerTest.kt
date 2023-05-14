@@ -1,14 +1,14 @@
-package org.x27.datamasker
+package org.kindcensor
 
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
-import org.x27.datamasker.DataMasker.DEFAULT_HIDDEN_STRING
-import org.x27.datamasker.DataMasker.DEFAULT_MASK
-import org.x27.datamasker.DataMasker.hide
-import org.x27.datamasker.DataMasker.initial
-import org.x27.datamasker.DataMasker.maskBeginning
-import org.x27.datamasker.DataMasker.maskEmail
-import org.x27.datamasker.DataMasker.maskEnding
+import org.kindcensor.DataMasker.DEFAULT_HIDDEN_STRING
+import org.kindcensor.DataMasker.DEFAULT_MASK
+import org.kindcensor.DataMasker.hide
+import org.kindcensor.DataMasker.initial
+import org.kindcensor.DataMasker.maskBeginning
+import org.kindcensor.DataMasker.maskEmail
+import org.kindcensor.DataMasker.maskEnding
 
 @Suppress("SpellCheckingInspection")
 class DataMaskerTest {

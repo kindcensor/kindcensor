@@ -1,4 +1,4 @@
-package org.x27.datamasker
+package org.kindcensor.core
 
 /**
  * The utility object for data-masking operations.
@@ -31,17 +31,17 @@ object DataMasker {
     val DEFAULT_HIDDEN_STRING = DEFAULT_MASK.toString().repeat(DEFAULT_HIDDEN_LENGTH)
 
     /**
-     * Masks string. Hides at least [minHidden] symbols from the begining of result string and opens no more than
+     * Masks string. Hides at least [minHidden] symbols from the beginning of result string and opens no more than
      * [maxOpen] symbols in the end of string. If result string is shorter than [minHidden] mask will be extended to
      * meet [minHidden] length. If result string is longer than [minHidden] + [maxOpen] then the rest of elements will be
      * masked
      *
      * Examples:
      *
-     *      assertThat(maskBegining("Vladimir")).isEqualTo("******ir")
-     *      assertThat(maskBegining("Vladimir", 3, 3)).isEqualTo("*****mir")
-     *      assertThat(maskBegining("Vl", 3, 3)).isEqualTo("***")
-     *      assertThat(maskBegining("Vladimir", 3, 3, '#')).isEqualTo("#####mir")
+     *      assertThat(maskBeginning("Vladimir")).isEqualTo("******ir")
+     *      assertThat(maskBeginning("Vladimir", 3, 3)).isEqualTo("*****mir")
+     *      assertThat(maskBeginning("Vl", 3, 3)).isEqualTo("***")
+     *      assertThat(maskBeginning("Vladimir", 3, 3, '#')).isEqualTo("#####mir")
      *
      * Will always return `null` for `null` input
      * @param subject The input object
@@ -75,7 +75,7 @@ object DataMasker {
 
     /**
      * Masks string. Hides at least [minHidden] symbols from the ending of result string and opens no more than
-     * [maxOpen] symbols in the begining of the string. If result string is shorter than [minHidden] mask will be
+     * [maxOpen] symbols in the beginning of the string. If result string is shorter than [minHidden] mask will be
      * extended to  meet [minHidden] length. If result string is longer than [minHidden] + [maxOpen] then the rest of
      * elements will be masked
      *
@@ -118,7 +118,7 @@ object DataMasker {
 
     /**
      * Masks email address. It will split value in to 2 parts by '@' symbols. [maskBeginning] will be applied to the
-     * first part. The second part will be splited by '.' symbol and [maskEnding] will be applied to each part except
+     * first part. The second part will be split by '.' symbol and [maskEnding] will be applied to each part except
      * the very last.
      *
      * Examples:

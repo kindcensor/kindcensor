@@ -1,11 +1,11 @@
-package org.x27.datamasker.annotation
+package org.kindcensor.annotation
 
-import org.x27.datamasker.DataMasker
-import org.x27.datamasker.DataMasker.DEFAULT_HIDDEN_LENGTH
+import org.kindcensor.core.DataMasker
+import org.kindcensor.core.DataMasker.DEFAULT_HIDDEN_LENGTH
 
 /**
- * The annotation to be processed by [org.x27.datamasker.MaskedReflectionToStringBuilder]. It will use
- * information from annotation to call [org.x27.datamasker.DataMasker.hide] on field value.
+ * The annotation to be processed by [org.kindcensor.reflection.MaskedReflectionToStringBuilder]. It will use
+ * information from annotation to call [org.kindcensor.core.DataMasker.hide] on field value.
  *
  * @param preserveLength Whether to save length of original [toString] result or replace with fixed
  * [DEFAULT_HIDDEN_LENGTH] length
