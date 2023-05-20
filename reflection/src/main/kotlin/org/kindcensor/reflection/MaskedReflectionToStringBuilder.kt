@@ -7,7 +7,7 @@ import org.kindcensor.annotation.ToStringInitial
 import org.kindcensor.annotation.ToStringMaskBeginning
 import org.kindcensor.annotation.ToStringMaskEmail
 import org.kindcensor.annotation.ToStringMaskEnding
-import org.kindcensor.core.DataMasker
+import org.kindcensor.annotation.bind.AnnotationBindingRegistry
 import java.lang.reflect.Field
 
 /**
@@ -57,17 +57,9 @@ class MaskedReflectionToStringBuilder @JvmOverloads constructor(
 
     override fun getValue(field: Field): Any? {
         val value = super.getValue(field)
-
-        for (ann in field.annotations) {
-            when (ann) {
-                is ToStringMaskBeginning -> return DataMasker.maskBeginning(value, ann.maxOpen, ann.minHidden, ann.mask)
-                is ToStringMaskEnding ->  return DataMasker.maskEnding(value, ann.maxOpen, ann.minHidden, ann.mask)
-                is ToStringInitial ->  return DataMasker.initial(value, ann.withPeriodEnding)
-                is ToStringMaskEmail ->  return DataMasker.maskEmail(value?.toString(), ann.mask)
-                is ToStringHide ->  return DataMasker.hide(value, ann.preserveLength, ann.preserveNull, ann.mask)
-            }
-        }
-
-        return value
+        val binding = field.annotations.asSequence()
+            .mapNotNull { AnnotationBindingRegistry.getProcessor(it) }
+            .firstOrNull()
+        return if (binding == null) value else binding.process(value)
     }
 }

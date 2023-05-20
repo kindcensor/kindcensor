@@ -134,12 +134,12 @@ object DataMasker {
      */
     @JvmStatic
     @JvmOverloads
-    fun maskEmail(email: String?, mask: Char = '*'): String? {
+    fun maskEmail(email: Any?, mask: Char = '*'): String? {
         if (email == null) {
             return null
         }
 
-        val parts = email.split(delimiters = arrayOf("@"), ignoreCase = false, limit = 2)
+        val parts = email.toString().split(delimiters = arrayOf("@"), ignoreCase = false, limit = 2)
         if (parts.size < 2) {
             return maskEnding(email, mask = mask)
         }
