@@ -4,6 +4,6 @@ plugins {
 }
 
 dependencies {
-    implementation("org.apache.commons:commons-lang3")
+    testImplementation("org.apache.commons:commons-lang3")
 }
 
