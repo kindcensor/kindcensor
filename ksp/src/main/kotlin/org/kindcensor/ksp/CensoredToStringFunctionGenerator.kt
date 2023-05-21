@@ -1,10 +1,5 @@
 package org.kindcensor.ksp
 
-import com.google.devtools.ksp.symbol.KSAnnotation
-import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSDeclaration
-import com.google.devtools.ksp.symbol.KSName
-import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
@@ -13,10 +8,8 @@ import com.squareup.kotlinpoet.TypeSpec
 import org.kindcensor.annotation.bind.AnnotationRegistry
 
 //TODO own representation of a code
-internal fun generateToStringFunctionsFile(byClasses: Map<KSDeclaration, List<Pair<KSPropertyDeclaration, KSAnnotation>>>): FileSpec {
-    val classesToFunctions = byClasses.map { (clazz, properties) ->
-        clazz to generateToString(clazz as KSClassDeclaration, properties)
-    }
+internal fun generateToStringFunctionsFile(byClasses: List<ClassIR>): FileSpec {
+    val classesToFunctions = byClasses.associateWith { generateToString(it) }
     return FileSpec.builder("org.kindcensor.ksp.generated", "ToStringFunctions")
         .also { builder -> classesToFunctions.forEach { (_, f) -> builder.addFunction(f) } }
         .addType(
@@ -25,11 +18,10 @@ internal fun generateToStringFunctionsFile(byClasses: Map<KSDeclaration, List<Pa
                     CodeBlock.builder()
                         .also { builder ->
                             classesToFunctions.forEach { (clazz, function) ->
-                                val className = clazz.simpleName.getShortName()
                                 builder.addStatement(
                                     "%T.register(%L::class, ::%N)",
                                     Stringer::class,
-                                    className,
+                                    clazz.simpleName,
                                     function.name
                                 )
                             }
@@ -41,21 +33,17 @@ internal fun generateToStringFunctionsFile(byClasses: Map<KSDeclaration, List<Pa
         .build()
 }
 
-private fun generateToString(
-    clazz: KSClassDeclaration,
-    properties: List<Pair<KSPropertyDeclaration, KSAnnotation>>
-): FunSpec {
-    val qualifiedName = clazz.qualifiedName ?: error("Failed to get qualifiedName for $clazz")
-    val parameterClassName = ClassName(qualifiedName.getQualifier(), qualifiedName.getShortName())
-    return FunSpec.builder(makeName(qualifiedName))
+private fun generateToString(clazz: ClassIR): FunSpec {
+    val parameterClassName = ClassName(clazz.qualifier, clazz.simpleName)
+    return FunSpec.builder(makeName(clazz.qualifiedName))
         .returns(String::class)
         .addParameter("subject", parameterClassName)
         .beginControlFlow("return buildString")
-        .addStatement("append(%S)", qualifiedName.getShortName() + '(')
+        .addStatement("append(%S)", clazz.simpleName + '(')
         .also { builder ->
-            properties.forEachIndexed { index, (property, annotation) ->
-                appendProperty(builder, property, annotation)
-                if (index != properties.lastIndex) {
+            clazz.properties.forEachIndexed { index, (name, annotation) ->
+                appendProperty(builder, name, annotation)
+                if (index != clazz.properties.lastIndex) {
                     builder.addStatement("append(',')")
                 }
             }
@@ -67,26 +55,35 @@ private fun generateToString(
 
 private fun appendProperty(
     builder: FunSpec.Builder,
-    property: KSPropertyDeclaration,
-    annotation: KSAnnotation
+    name: String,
+    annotation: AnnotationIR?
 ) {
-    val propertyName = property.simpleName.getShortName()
-    builder.addStatement("""append("${property.simpleName.getShortName()}=")""")
-        .addCode("append(%T.apply(", AnnotationRegistry::class)
-        .also { appendAnnotationValue(it, annotation) }
-        .addCode(", subject.$propertyName))\n")
+    builder.addStatement("""append("$name=")""")
+        .also { appendValue(name, it, annotation) }
+
 }
 
-fun appendAnnotationValue(builder: FunSpec.Builder, annotation: KSAnnotation) {
-    val name = annotation.shortName.getShortName()
-    builder.addCode("%T(", AnnotationRegistry.bySimpleNames[name])
+private fun appendValue(name: String, builder: FunSpec.Builder, annotation: AnnotationIR?) {
+    if (annotation != null) {
+        appendValueWithAnnotation(name, builder, annotation)
+    } else {
+        appendPlainValue(name, builder)
+    }
+}
+
+private fun appendPlainValue(name: String, builder: FunSpec.Builder) = builder.addCode("subject.$name")
+
+private fun appendValueWithAnnotation(name: String, builder: FunSpec.Builder, annotation: AnnotationIR) {
+    builder.addCode("append(%T.apply(", AnnotationRegistry::class)
+    builder.addCode("%T(", AnnotationRegistry.bySimpleNames[annotation.simpleName])
     annotation.arguments.forEachIndexed { index, argument ->
-        builder.addCode("%N=%L", argument.name?.getShortName(), formatArgumentValue(argument.value))
+        builder.addCode("%N=%L", argument.name, formatArgumentValue(argument.value))
         if (index != annotation.arguments.lastIndex) {
             builder.addCode(", ")
         }
     }
     builder.addCode(")")
+    builder.addCode(", subject.$name))\n")
 }
 
 private fun formatArgumentValue(value: Any?) = when (value) {
@@ -95,5 +92,4 @@ private fun formatArgumentValue(value: Any?) = when (value) {
     else -> value
 }
 
-
-private fun makeName(qualifiedName: KSName): String = "toString_${qualifiedName.asString().replace('.', '_')}"
+private fun makeName(qualifiedName: String): String = "toString_${qualifiedName.replace('.', '_')}"

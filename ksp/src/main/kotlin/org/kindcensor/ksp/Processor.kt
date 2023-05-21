@@ -5,38 +5,47 @@ import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.KSAnnotated
-import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
-import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.squareup.kotlinpoet.FileSpec
 import org.kindcensor.annotation.bind.AnnotationRegistry
-import kotlin.reflect.KClass
 
 internal class Processor(private val environment: SymbolProcessorEnvironment) : SymbolProcessor {
+
+    private val shortNames: Set<String>
+
+    private val qualifiedNames: Set<String>
+
+
+    init {
+        val shortNames = mutableSetOf<String>()
+        val qualifiedNames = mutableSetOf<String>()
+
+        AnnotationRegistry.all.forEach {
+            shortNames.add(it.simpleName ?: error("Failed to get simple name for $it"))
+            qualifiedNames.add(it.qualifiedName ?: error("Failed to get qualified name for $it"))
+        }
+
+        this.shortNames = shortNames
+        this.qualifiedNames = qualifiedNames
+    }
 
     private var done = false
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         // TODO find other way
-        if(done) {
+        if (done) {
             return emptyList()
         }
         done = true
 
-        val visitor = FindPropertiesVisitor(AnnotationRegistry.all)
+        val visitor = FindPropertiesVisitor()
         resolver.getAllFiles().forEach { it.accept(visitor, Unit) }
-        val propertiesToAnnotations = visitor.propertiesToAnnotations
-        if (propertiesToAnnotations.isEmpty()) {
-            return emptyList()
-        }
-
-        val byClasses = propertiesToAnnotations.groupBy { (property, _) ->
-            property.parentDeclaration ?: error("No parentDeclaration for $property")
-        }
-        val sourceFiles = byClasses.keys.mapNotNull { it.containingFile }.toSet()
-        val functionsFile: FileSpec = generateToStringFunctionsFile(byClasses)
+        val classesIR = visitor.classes.map { ClassIR.fromKSP(it, shortNames, qualifiedNames) }
+        val sourceFiles = visitor.classes.mapNotNull { it.containingFile }.toSet()
+        val functionsFile: FileSpec = generateToStringFunctionsFile(classesIR)
+        println(functionsFile)
         passGeneratedCodeToEnvironment(functionsFile, sourceFiles)
 
         return emptyList()
@@ -48,42 +57,24 @@ internal class Processor(private val environment: SymbolProcessorEnvironment) : 
         outFile.write(fileSpec.toString().toByteArray())
     }
 
-    inner class FindPropertiesVisitor(annotations: List<KClass<out Annotation>>) : KSVisitorVoid() {
-        private val shortNames: Set<String>
+    inner class FindPropertiesVisitor() : KSVisitorVoid() {
 
-        private val qualifiedNames: Set<String>
+        val classes = mutableSetOf<KSClassDeclaration>()
 
-        init {
-            val shortNames = mutableSetOf<String>()
-            val qualifiedNames = mutableSetOf<String>()
-
-            annotations.forEach {
-                shortNames.add(it.simpleName ?: error("Failed to get simple name for $it"))
-                qualifiedNames.add(it.qualifiedName ?: error("Failed to get qualified name for $it"))
-            }
-
-            this.shortNames = shortNames
-            this.qualifiedNames = qualifiedNames
-        }
-
-        val propertiesToAnnotations = mutableListOf<Pair<KSPropertyDeclaration, KSAnnotation>>()
-
-        override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) =
-        // TODO check if toString is present
+        override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
+            // TODO check if toString is present
             // TODO data optional filter by kinds
-            classDeclaration.getAllProperties().forEach { it.accept(this, Unit) }
-
-        override fun visitPropertyDeclaration(property: KSPropertyDeclaration, data: Unit) {
-            val annotation = property.annotations.firstOrNull {
+            val annotationsOnAllProperties = classDeclaration.getAllProperties().flatMap { it.annotations }
+            val annotationPresent = annotationsOnAllProperties.any {
                 val shortName = it.shortName.getShortName()
                 if (shortName !in shortNames) {
-                    return@firstOrNull false
+                    return@any false
                 }
                 val qualifiedName = it.annotationType.resolve().declaration.qualifiedName?.asString()
-                return@firstOrNull qualifiedName in qualifiedNames
+                return@any qualifiedName in qualifiedNames
             }
-            if (annotation != null) {
-                propertiesToAnnotations.add(property to annotation)
+            if (annotationPresent) {
+                classes.add(classDeclaration)
             }
         }
 
