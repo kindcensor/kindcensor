@@ -17,7 +17,7 @@ object KotlinPoetDefaultGenerator: Generator {
         return FileSpec.builder("org.kindcensor.ksp.generated", "ToStringFunctions")
             .also { builder -> classesToFunctions.forEach { (_, f) -> builder.addFunction(f) } }
             .addType(
-                TypeSpec.objectBuilder("Initializer")
+                TypeSpec.classBuilder("Initializer")
                     .addInitializerBlock(
                         CodeBlock.builder()
                             .also { builder ->

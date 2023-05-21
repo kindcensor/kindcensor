@@ -11,7 +11,6 @@ import org.assertj.core.api.AssertionsForClassTypes
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
 
-@Suppress("NO_REFLECTION_IN_CLASS_PATH")
 class ProcessorTest {
 
     companion object {
@@ -100,8 +99,17 @@ class ProcessorTest {
 
     private fun getObject(result: KotlinCompilation.Result, vararg constructorArguments: Any?): Any {
         val kClazz = result.classLoader.loadClass("$PACKAGE_NAME.$CLASS_NAME")
-        result.classLoader.loadClass("org.kindcensor.ksp.generated.Initializer").kotlin.objectInstance
-        return kClazz.constructors[0].newInstance(*constructorArguments)
+        val data = kClazz.getConstructor(
+            String::class.java,
+            String::class.java,
+            String::class.java,
+            String::class.java,
+            Long::class.java,
+            String::class.java,
+            String::class.java,
+        ).newInstance(*constructorArguments)
+        result.classLoader.loadClass("org.kindcensor.ksp.generated.Initializer").getDeclaredConstructor().newInstance()
+        return data
     }
 
     private fun compile(@Language("kotlin") classContent: String): KotlinCompilation.Result {
