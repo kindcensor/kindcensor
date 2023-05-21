@@ -13,7 +13,7 @@ import com.squareup.kotlinpoet.TypeSpec
 import org.kindcensor.annotation.bind.AnnotationRegistry
 
 //TODO own representation of a code
-internal fun generateCensoredToStringFunctionsFile(byClasses: Map<KSDeclaration, List<Pair<KSPropertyDeclaration, KSAnnotation>>>): FileSpec {
+internal fun generateToStringFunctionsFile(byClasses: Map<KSDeclaration, List<Pair<KSPropertyDeclaration, KSAnnotation>>>): FileSpec {
     val classesToFunctions = byClasses.map { (clazz, properties) ->
         clazz to generateToString(clazz as KSClassDeclaration, properties)
     }
@@ -96,4 +96,4 @@ private fun formatArgumentValue(value: Any?) = when (value) {
 }
 
 
-private fun makeName(qualifiedName: KSName): String = "toString_${qualifiedName.asString().replace(',', '_')}"
+private fun makeName(qualifiedName: KSName): String = "toString_${qualifiedName.asString().replace('.', '_')}"

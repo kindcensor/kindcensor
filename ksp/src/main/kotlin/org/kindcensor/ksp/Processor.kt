@@ -36,7 +36,7 @@ internal class Processor(private val environment: SymbolProcessorEnvironment) : 
             property.parentDeclaration ?: error("No parentDeclaration for $property")
         }
         val sourceFiles = byClasses.keys.mapNotNull { it.containingFile }.toSet()
-        val functionsFile: FileSpec = generateCensoredToStringFunctionsFile(byClasses)
+        val functionsFile: FileSpec = generateToStringFunctionsFile(byClasses)
         passGeneratedCodeToEnvironment(functionsFile, sourceFiles)
 
         return emptyList()

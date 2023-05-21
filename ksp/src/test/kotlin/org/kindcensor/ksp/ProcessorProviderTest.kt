@@ -14,12 +14,16 @@ class ProcessorProviderTest {
 
     companion object {
         private const val CLASS_NAME = "TestData"
+
+        private const val PACKAGE_NAME = "org.test"
     }
 
     @Test
     fun test() {
         val source = SourceFile.kotlin(
             "$CLASS_NAME.kt", """
+                package $PACKAGE_NAME              
+
                 import org.kindcensor.annotation.ToStringHide
                 import org.kindcensor.annotation.ToStringInitial
                 import org.kindcensor.annotation.ToStringMaskBeginning
@@ -54,7 +58,7 @@ class ProcessorProviderTest {
         val result = compilation.compile()
         assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
         result.compiledClassAndResourceFiles.forEach { println(it) }
-        val kClazz = result.classLoader.loadClass(CLASS_NAME)
+        val kClazz = result.classLoader.loadClass("$PACKAGE_NAME.$CLASS_NAME")
         result.classLoader.loadClass("org.kindcensor.ksp.generated.Initializer").kotlin.objectInstance
         val data = kClazz.constructors[0].newInstance(
             "Vladimir", "Petrovich", "Ivanov", "v.p.ivanov@mail.ru", 88002000600L, "Swordfish"
