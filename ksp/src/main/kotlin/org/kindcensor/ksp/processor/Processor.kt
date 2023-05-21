@@ -1,4 +1,4 @@
-package org.kindcensor.ksp
+package org.kindcensor.ksp.processor
 
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.Resolver
@@ -8,15 +8,21 @@ import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSVisitorVoid
-import com.squareup.kotlinpoet.FileSpec
 import org.kindcensor.annotation.bind.AnnotationRegistry
+import org.kindcensor.ksp.Options
+import org.kindcensor.ksp.generator.Generator
+import org.kindcensor.ksp.generator.GeneratorResult
+import org.kindcensor.ksp.ir.ClassIR
 
-internal class Processor(private val environment: SymbolProcessorEnvironment, val options: Options) : SymbolProcessor {
+internal class Processor(
+    private val environment: SymbolProcessorEnvironment,
+    private val options: Options,
+    private val generator: Generator
+) : SymbolProcessor {
 
     private val shortNames: Set<String>
 
     private val qualifiedNames: Set<String>
-
 
     init {
         val shortNames = mutableSetOf<String>()
@@ -44,22 +50,25 @@ internal class Processor(private val environment: SymbolProcessorEnvironment, va
         resolver.getAllFiles().forEach { it.accept(visitor, Unit) }
         val classesIR = visitor.classes.map { ClassIR.fromKSP(it, shortNames, qualifiedNames) }
         val sourceFiles = visitor.classes.mapNotNull { it.containingFile }.toSet()
-        val functionsFile: FileSpec = generateToStringFunctionsFile(classesIR)
-        if (options.logGeneratedCode) {
-            environment.logger.info(functionsFile.toString())
+
+        val result = generator.generate(classesIR)
+        if(result != null) {
+            if (options.logGeneratedCode) {
+                environment.logger.info(result.content)
+            }
+            passGeneratedCodeToEnvironment(result, sourceFiles)
         }
-        passGeneratedCodeToEnvironment(functionsFile, sourceFiles)
 
         return emptyList()
     }
 
-    private fun passGeneratedCodeToEnvironment(fileSpec: FileSpec, sourceFiles: Set<KSFile>) {
+    private fun passGeneratedCodeToEnvironment(result: GeneratorResult, sourceFiles: Set<KSFile>) {
         val dependencies = Dependencies(false, *sourceFiles.toTypedArray())
-        val outFile = environment.codeGenerator.createNewFile(dependencies, fileSpec.packageName, fileSpec.name)
-        outFile.write(fileSpec.toString().toByteArray())
+        val outFile = environment.codeGenerator.createNewFile(dependencies, result.packageName, result.fileName)
+        outFile.write(result.content.toByteArray())
     }
 
-    inner class FindPropertiesVisitor() : KSVisitorVoid() {
+    inner class FindPropertiesVisitor : KSVisitorVoid() {
 
         val classes = mutableSetOf<KSClassDeclaration>()
 
