@@ -59,8 +59,7 @@ private fun appendProperty(
     annotation: AnnotationIR?
 ) {
     builder.addStatement("""append("$name=")""")
-        .also { appendValue(name, it, annotation) }
-
+    appendValue(name, builder, annotation)
 }
 
 private fun appendValue(name: String, builder: FunSpec.Builder, annotation: AnnotationIR?) {
@@ -71,7 +70,7 @@ private fun appendValue(name: String, builder: FunSpec.Builder, annotation: Anno
     }
 }
 
-private fun appendPlainValue(name: String, builder: FunSpec.Builder) = builder.addCode("subject.$name")
+private fun appendPlainValue(name: String, builder: FunSpec.Builder) = builder.addStatement("append(subject.$name)")
 
 private fun appendValueWithAnnotation(name: String, builder: FunSpec.Builder, annotation: AnnotationIR) {
     builder.addCode("append(%T.apply(", AnnotationRegistry::class)

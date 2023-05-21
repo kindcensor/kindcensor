@@ -2,6 +2,7 @@ package org.kindcensor.ksp
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
+import com.tschuchort.compiletesting.kspArgs
 import com.tschuchort.compiletesting.kspIncremental
 import com.tschuchort.compiletesting.kspWithCompilation
 import com.tschuchort.compiletesting.symbolProcessorProviders
@@ -38,7 +39,7 @@ class ProcessorProviderTest {
                     @field:ToStringMaskEmail val email: String,
                     @field:ToStringMaskBeginning(mask = '#') val phone: Long,
                     @field:ToStringHide val password: String,
-                    // val data: String TODO
+                    val data: String
                 ) {               
                     override fun toString(): String = Stringer.toString(this)
                 }
@@ -53,6 +54,7 @@ class ProcessorProviderTest {
             kspIncremental = true
             messageOutputStream = System.out
             verbose = true
+            kspArgs = mutableMapOf("logGeneratedCode" to "true")
         }
 
         val result = compilation.compile()
@@ -61,10 +63,10 @@ class ProcessorProviderTest {
         val kClazz = result.classLoader.loadClass("$PACKAGE_NAME.$CLASS_NAME")
         result.classLoader.loadClass("org.kindcensor.ksp.generated.Initializer").kotlin.objectInstance
         val data = kClazz.constructors[0].newInstance(
-            "Vladimir", "Petrovich", "Ivanov", "v.p.ivanov@mail.ru", 88002000600L, "Swordfish"
+            "Vladimir", "Petrovich", "Ivanov", "v.p.ivanov@mail.ru", 88002000600L, "Swordfish", "random"
         )
         AssertionsForClassTypes.assertThat(data.toString())
-            .isEqualTo("TestData(firstName=V.,middleName=P.,lastName=Iv****,email=********ov@m***.ru,phone=#########00,password=********)")
+            .isEqualTo("TestData(firstName=V.,middleName=P.,lastName=Iv****,email=********ov@m***.ru,phone=#########00,password=********,data=random)")
     }
 
 

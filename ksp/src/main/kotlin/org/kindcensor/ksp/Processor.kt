@@ -11,7 +11,7 @@ import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.squareup.kotlinpoet.FileSpec
 import org.kindcensor.annotation.bind.AnnotationRegistry
 
-internal class Processor(private val environment: SymbolProcessorEnvironment) : SymbolProcessor {
+internal class Processor(private val environment: SymbolProcessorEnvironment, val options: Options) : SymbolProcessor {
 
     private val shortNames: Set<String>
 
@@ -45,7 +45,9 @@ internal class Processor(private val environment: SymbolProcessorEnvironment) : 
         val classesIR = visitor.classes.map { ClassIR.fromKSP(it, shortNames, qualifiedNames) }
         val sourceFiles = visitor.classes.mapNotNull { it.containingFile }.toSet()
         val functionsFile: FileSpec = generateToStringFunctionsFile(classesIR)
-        println(functionsFile)
+        if (options.logGeneratedCode) {
+            environment.logger.info(functionsFile.toString())
+        }
         passGeneratedCodeToEnvironment(functionsFile, sourceFiles)
 
         return emptyList()
