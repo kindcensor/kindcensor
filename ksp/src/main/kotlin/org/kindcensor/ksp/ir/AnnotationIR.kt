@@ -2,13 +2,25 @@ package org.kindcensor.ksp.ir
 
 import com.google.devtools.ksp.symbol.KSAnnotation
 
-data class AnnotationIR(val simpleName: String, val arguments: List<ArgumentIR>) {
+/**
+ * The intermediate representation of annotation
+ * @property simpleName The short name of annotation class
+ * @property arguments The annotation arguments
+ */
+data class AnnotationIR(val simpleName: String, val arguments: List<AnnotationArgumentIR>) {
+
     companion object {
-        fun fromKSP(declaration: KSAnnotation): AnnotationIR = AnnotationIR(
-            simpleName = declaration.shortName.getShortName(),
-            arguments = declaration.arguments.map {
+
+        /**
+         * Generate [Annotation] from KSP [KSAnnotation]
+         * @param annotation The source object
+         * @return Generated IR
+         */
+        fun fromKSP(annotation: KSAnnotation): AnnotationIR = AnnotationIR(
+            simpleName = annotation.shortName.getShortName(),
+            arguments = annotation.arguments.map {
                 val name = it.name?.getShortName() ?: error("Failed to get name for argument $it")
-                ArgumentIR(name, it.value)
+                AnnotationArgumentIR(name, it.value)
             }
         )
     }
