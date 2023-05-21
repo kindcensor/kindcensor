@@ -1,2 +1,2 @@
 rootProject.name = "kindcensor"
-include("annotation", "core", "reflection")
+include("annotation", "core", "reflection", "ksp")

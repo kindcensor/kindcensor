@@ -5,7 +5,6 @@ plugins {
 
 dependencies {
     implementation(project(":annotation"))
-    implementation(project(":core"))
     implementation("org.apache.commons:commons-lang3")
 }
 
