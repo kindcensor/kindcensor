@@ -1,43 +1,50 @@
 package org.kindcensor.ksp.generator
 
 import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.asClassName
 import org.kindcensor.annotation.bind.AnnotationRegistry
-import org.kindcensor.ksp.Stringer
+import org.kindcensor.ksp.Binding
 import org.kindcensor.ksp.ir.AnnotationIR
 import org.kindcensor.ksp.ir.ClassIR
 
-object KotlinPoetDefaultGenerator: Generator {
+object KotlinPoetDefaultGenerator : Generator {
+
+    private val listOfBindingsTypeName = List::class.asClassName().parameterizedBy(Binding::class.asClassName())
 
     override fun generate(classesIR: List<ClassIR>): GeneratorResult {
         val classesToFunctions = classesIR.associateWith { generateToString(it) }
         return FileSpec.builder("org.kindcensor.ksp.generated", "ToStringFunctions")
             .also { builder -> classesToFunctions.forEach { (_, f) -> builder.addFunction(f) } }
-            .addType(
-                TypeSpec.classBuilder("Initializer")
-                    .addInitializerBlock(
-                        CodeBlock.builder()
-                            .also { builder ->
-                                classesToFunctions.forEach { (clazz, function) ->
-                                    builder.addStatement(
-                                        "%T.register(%L::class, ::%N)",
-                                        Stringer::class,
-                                        clazz.simpleName,
-                                        function.name
-                                    )
-                                }
-                            }
-                            .build()
-                    )
-                    .build()
-            )
+            .addType(generateInitializer(classesToFunctions))
             .build()
             .let { GeneratorResult(it.name, it.packageName, it.toString()) }
     }
 
+    private fun generateInitializer(classesToFunctions: Map<ClassIR, FunSpec>): TypeSpec {
+        val getBindings = FunSpec.builder("getBindings")
+            .returns(listOfBindingsTypeName)
+            .addCode("return listOf(")
+            .also { builder ->
+                classesToFunctions.forEach { (clazz, function) ->
+                    builder.addCode(
+                        "\n%T(%L::class, ::%L as (Any) -> String),",
+                        Binding::class,
+                        clazz.simpleName,
+                        function.name
+                    )
+                }
+            }
+            .addCode("\n);")
+            .build()
+
+        return TypeSpec.classBuilder("Initializer")
+            .addFunction(getBindings)
+            .build()
+    }
 
     private fun generateToString(clazz: ClassIR): FunSpec {
         val parameterClassName = ClassName(clazz.qualifier, clazz.simpleName)

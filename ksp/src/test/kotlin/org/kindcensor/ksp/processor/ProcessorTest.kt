@@ -99,7 +99,7 @@ class ProcessorTest {
 
     private fun getObject(result: KotlinCompilation.Result, vararg constructorArguments: Any?): Any {
         val kClazz = result.classLoader.loadClass("$PACKAGE_NAME.$CLASS_NAME")
-        val data = kClazz.getConstructor(
+        return kClazz.getConstructor(
             String::class.java,
             String::class.java,
             String::class.java,
@@ -108,8 +108,6 @@ class ProcessorTest {
             String::class.java,
             String::class.java,
         ).newInstance(*constructorArguments)
-        result.classLoader.loadClass("org.kindcensor.ksp.generated.Initializer").getDeclaredConstructor().newInstance()
-        return data
     }
 
     private fun compile(@Language("kotlin") classContent: String): KotlinCompilation.Result {

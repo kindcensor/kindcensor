@@ -41,18 +41,22 @@ internal class Processor(
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         // TODO find other way
-        if (done) {
-            return emptyList()
-        }
-        done = true
+
 
         val visitor = FindPropertiesVisitor()
         resolver.getAllFiles().forEach { it.accept(visitor, Unit) }
         val classesIR = visitor.classes.map { ClassIR.fromKSP(it, shortNames, qualifiedNames) }
         val sourceFiles = visitor.classes.mapNotNull { it.containingFile }.toSet()
+        environment.logger.info("1234567")
+        environment.logger.info(visitor.classes.toString())
+
+        if (done) {
+            return emptyList()
+        }
+        done = true
 
         val result = generator.generate(classesIR)
-        if(result != null) {
+        if (result != null) {
             if (options.logGeneratedCode) {
                 environment.logger.info(result.content)
             }
@@ -87,6 +91,12 @@ internal class Processor(
             if (annotationPresent) {
                 classes.add(classDeclaration)
             }
+            classDeclaration.declarations
+                .forEach {
+                    if (it is KSClassDeclaration) {
+                        visitClassDeclaration(it, data)
+                    }
+                }
         }
 
         override fun visitFile(file: KSFile, data: Unit) = file.declarations.forEach { it.accept(this, Unit) }
