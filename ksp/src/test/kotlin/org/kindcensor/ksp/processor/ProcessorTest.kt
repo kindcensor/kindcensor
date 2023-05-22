@@ -25,7 +25,7 @@ class ProcessorTest {
                 import org.kindcensor.annotation.ToStringMaskBeginning
                 import org.kindcensor.annotation.ToStringMaskEmail
                 import org.kindcensor.annotation.ToStringMaskEnding      
-                import org.kindcensor.ksp.Stringer
+                import org.kindcensor.ksp.TestStringer
         """.trimIndent()
     }
 
@@ -43,7 +43,7 @@ class ProcessorTest {
                     @field:ToStringHide val password: String,
                     val data: String
                     ) {               
-                    override fun toString(): String = Stringer.toString(this)
+                    override fun toString(): String = TestStringer.toString(this)
                 }
             """.trimIndent()
         )
@@ -77,7 +77,7 @@ class ProcessorTest {
                     @field:ToStringHide val password: String,
                     val data: String
                     ) {               
-                    override fun toString(): String = Stringer.toString(this)
+                    override fun toString(): String = TestStringer.toString(this)
                 }
             """.trimIndent()
         )
@@ -99,15 +99,7 @@ class ProcessorTest {
 
     private fun getObject(result: KotlinCompilation.Result, vararg constructorArguments: Any?): Any {
         val kClazz = result.classLoader.loadClass("$PACKAGE_NAME.$CLASS_NAME")
-        return kClazz.getConstructor(
-            String::class.java,
-            String::class.java,
-            String::class.java,
-            String::class.java,
-            Long::class.java,
-            String::class.java,
-            String::class.java,
-        ).newInstance(*constructorArguments)
+        return kClazz.constructors[0].newInstance(*constructorArguments)
     }
 
     private fun compile(@Language("kotlin") classContent: String): KotlinCompilation.Result {

@@ -24,6 +24,8 @@ internal class Processor(
 
     private val qualifiedNames: Set<String>
 
+    private val processedClasses = mutableSetOf<String>()
+
     init {
         val shortNames = mutableSetOf<String>()
         val qualifiedNames = mutableSetOf<String>()
@@ -37,23 +39,15 @@ internal class Processor(
         this.qualifiedNames = qualifiedNames
     }
 
-    private var done = false
-
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        // TODO find other way
-
-
         val visitor = FindPropertiesVisitor()
         resolver.getAllFiles().forEach { it.accept(visitor, Unit) }
-        val classesIR = visitor.classes.map { ClassIR.fromKSP(it, shortNames, qualifiedNames) }
-        val sourceFiles = visitor.classes.mapNotNull { it.containingFile }.toSet()
-        environment.logger.info("1234567")
-        environment.logger.info(visitor.classes.toString())
-
-        if (done) {
+        if (visitor.classes.isEmpty()) {
             return emptyList()
         }
-        done = true
+        environment.logger.warn(visitor.classes.toString() + " " + this + " " + processedClasses)
+        val classesIR = visitor.classes.map { ClassIR.fromKSP(it, shortNames, qualifiedNames) }
+        val sourceFiles = visitor.classes.mapNotNull { it.containingFile }.toSet()
 
         val result = generator.generate(classesIR)
         if (result != null) {
@@ -68,8 +62,9 @@ internal class Processor(
 
     private fun passGeneratedCodeToEnvironment(result: GeneratorResult, sourceFiles: Set<KSFile>) {
         val dependencies = Dependencies(false, *sourceFiles.toTypedArray())
-        val outFile = environment.codeGenerator.createNewFile(dependencies, result.packageName, result.fileName)
-        outFile.write(result.content.toByteArray())
+        environment.codeGenerator.createNewFile(dependencies, result.packageName, result.fileName).use {
+            it.write(result.content.toByteArray())
+        }
     }
 
     inner class FindPropertiesVisitor : KSVisitorVoid() {
@@ -77,6 +72,12 @@ internal class Processor(
         val classes = mutableSetOf<KSClassDeclaration>()
 
         override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
+            val name = classDeclaration.qualifiedName?.asString()
+                ?: error("Failed to get qualifiedName for $classDeclaration")
+            if (name in processedClasses) {
+                return
+            }
+            processedClasses.add(name)
             // TODO check if toString is present
             // TODO data optional filter by kinds
             val annotationsOnAllProperties = classDeclaration.getAllProperties().flatMap { it.annotations }
