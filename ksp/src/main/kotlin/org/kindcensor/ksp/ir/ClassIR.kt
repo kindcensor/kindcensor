@@ -1,6 +1,5 @@
 package org.kindcensor.ksp.ir
 
-import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 
 /**
