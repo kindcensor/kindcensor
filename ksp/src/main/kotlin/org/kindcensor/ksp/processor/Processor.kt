@@ -4,10 +4,13 @@ import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
+import com.google.devtools.ksp.symbol.ClassKind
+import com.google.devtools.ksp.symbol.ClassKind.*
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSVisitorVoid
+import org.kindcensor.annotation.GenerateToString
 import org.kindcensor.annotation.bind.AnnotationRegistry
 import org.kindcensor.ksp.Options
 import org.kindcensor.ksp.generator.Generator
@@ -20,11 +23,14 @@ internal class Processor(
     private val generator: Generator
 ) : SymbolProcessor {
 
+    private val targetAnnotationName = GenerateToString::class.qualifiedName
+        ?: error("Failed to get target annotation name for ${GenerateToString::class}")
+
     private val shortNames: Set<String>
 
     private val qualifiedNames: Set<String>
 
-    private val processedClasses = mutableSetOf<String>()
+    private val classesIR: MutableList<ClassIR> = mutableListOf()
 
     init {
         val shortNames = mutableSetOf<String>()
@@ -40,16 +46,20 @@ internal class Processor(
     }
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        val visitor = FindPropertiesVisitor()
-        resolver.getAllFiles().forEach { it.accept(visitor, Unit) }
-        if (visitor.classes.isEmpty()) {
-            return emptyList()
-        }
-        environment.logger.warn(visitor.classes.toString() + " " + this + " " + processedClasses)
-        val classesIR = visitor.classes.map { ClassIR.fromKSP(it, shortNames, qualifiedNames) }
-        val sourceFiles = visitor.classes.mapNotNull { it.containingFile }.toSet()
+        val classes = resolver.getSymbolsWithAnnotation(targetAnnotationName, inDepth = true)
+            .mapNotNull {
+                if(it is KSClassDeclaration && (it.classKind == CLASS || it.classKind == ENUM_CLASS)) {
+                    it
+                } else {
+                    null
+                }
+            }
+            .toList()
 
-        val result = generator.generate(classesIR)
+        classesIR += classes.map { ClassIR.fromKSP(it, shortNames, qualifiedNames) }
+        val sourceFiles = classes.mapNotNull { it.containingFile }.toSet()
+
+        val result = generator.generate(classesIR.asSequence())
         if (result != null) {
             if (options.logGeneratedCode) {
                 environment.logger.info(result.content)
@@ -62,45 +72,12 @@ internal class Processor(
 
     private fun passGeneratedCodeToEnvironment(result: GeneratorResult, sourceFiles: Set<KSFile>) {
         val dependencies = Dependencies(false, *sourceFiles.toTypedArray())
-        environment.codeGenerator.createNewFile(dependencies, result.packageName, result.fileName).use {
-            it.write(result.content.toByteArray())
+        val outputStream = try {
+            environment.codeGenerator.createNewFile(dependencies, result.packageName, result.fileName)
+        } catch (e: FileAlreadyExistsException) {
+            e.file.outputStream()
         }
+        outputStream.use { it.write(result.content.toByteArray()) }
     }
 
-    inner class FindPropertiesVisitor : KSVisitorVoid() {
-
-        val classes = mutableSetOf<KSClassDeclaration>()
-
-        override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
-            val name = classDeclaration.qualifiedName?.asString()
-                ?: error("Failed to get qualifiedName for $classDeclaration")
-            if (name in processedClasses) {
-                return
-            }
-            processedClasses.add(name)
-            // TODO check if toString is present
-            // TODO data optional filter by kinds
-            val annotationsOnAllProperties = classDeclaration.getAllProperties().flatMap { it.annotations }
-            val annotationPresent = annotationsOnAllProperties.any {
-                val shortName = it.shortName.getShortName()
-                if (shortName !in shortNames) {
-                    return@any false
-                }
-                val qualifiedName = it.annotationType.resolve().declaration.qualifiedName?.asString()
-                return@any qualifiedName in qualifiedNames
-            }
-            if (annotationPresent) {
-                classes.add(classDeclaration)
-            }
-            classDeclaration.declarations
-                .forEach {
-                    if (it is KSClassDeclaration) {
-                        visitClassDeclaration(it, data)
-                    }
-                }
-        }
-
-        override fun visitFile(file: KSFile, data: Unit) = file.declarations.forEach { it.accept(this, Unit) }
-
-    }
 }

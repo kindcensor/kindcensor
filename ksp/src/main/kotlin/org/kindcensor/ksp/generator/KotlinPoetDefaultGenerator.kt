@@ -15,7 +15,7 @@ object KotlinPoetDefaultGenerator : Generator {
 
     private val listOfBindingsTypeName = List::class.asClassName().parameterizedBy(Binding::class.asClassName())
 
-    override fun generate(classesIR: List<ClassIR>): GeneratorResult {
+    override fun generate(classesIR: Sequence<ClassIR>): GeneratorResult {
         val classesToFunctions = classesIR.associateWith { generateToString(it) }
         return FileSpec.builder("org.kindcensor.ksp.generated", "ToStringFunctions")
             .also { builder -> classesToFunctions.forEach { (_, f) -> builder.addFunction(f) } }
@@ -33,7 +33,7 @@ object KotlinPoetDefaultGenerator : Generator {
                     builder.addCode(
                         "\n%T(%L::class, ::%L as (Any) -> String),",
                         Binding::class,
-                        clazz.simpleName,
+                        clazz.qualifiedName,
                         function.name
                     )
                 }

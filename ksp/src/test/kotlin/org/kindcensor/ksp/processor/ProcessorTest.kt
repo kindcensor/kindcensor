@@ -19,7 +19,8 @@ class ProcessorTest {
         private const val PACKAGE_NAME = "org.test"
 
         private val HEADER = """
-                package $PACKAGE_NAME      
+                package $PACKAGE_NAME    
+                import org.kindcensor.annotation.GenerateToString
                 import org.kindcensor.annotation.ToStringHide
                 import org.kindcensor.annotation.ToStringInitial
                 import org.kindcensor.annotation.ToStringMaskBeginning
@@ -34,6 +35,7 @@ class ProcessorTest {
         val result = compile(
             """
                 $HEADER
+                @GenerateToString
                 data class $CLASS_NAME(
                     @field:ToStringInitial val firstName: String,
                     @field:ToStringInitial val middleName: String,
@@ -68,6 +70,7 @@ class ProcessorTest {
         val result = compile(
             """
                 $HEADER
+                @GenerateToString    
                 class $CLASS_NAME(
                     @field:ToStringInitial val firstName: String,
                     @field:ToStringInitial val middleName: String,
