@@ -1,5 +1,6 @@
 package org.kindcensor.ksp.generator
 
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -26,6 +27,7 @@ object KotlinPoetDefaultGenerator : Generator {
 
     private fun generateInitializer(classesToFunctions: Map<ClassIR, FunSpec>): TypeSpec {
         val getBindings = FunSpec.builder("getBindings")
+            .addAnnotation(generateSuppressUncheckedCastAnnotation())
             .returns(listOfBindingsTypeName)
             .addCode("return listOf(")
             .also { builder ->
@@ -43,6 +45,12 @@ object KotlinPoetDefaultGenerator : Generator {
 
         return TypeSpec.classBuilder("Initializer")
             .addFunction(getBindings)
+            .build()
+    }
+
+    private fun generateSuppressUncheckedCastAnnotation(): AnnotationSpec {
+        return AnnotationSpec.builder(Suppress::class.asClassName())
+            .addMember("%S","UNCHECKED_CAST")
             .build()
     }
 
