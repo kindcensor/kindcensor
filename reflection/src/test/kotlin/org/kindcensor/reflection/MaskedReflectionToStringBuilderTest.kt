@@ -17,14 +17,14 @@ class MaskedReflectionToStringBuilderTest {
             firstName = "Vladimir",
             middleName = "Petrovich",
             lastName = "Ivanov",
-            email = "v.p.ivanov@mail.ru",
+            email = "v.p.ivanov@mail.org",
             phone = 88002000600,
             password = "Swordfish",
             data = "random"
         )
         Assertions.assertThat(data.toString())
             .isEqualTo(
-                "MaskedReflectionToStringBuilderTest.TestDataMaskedReflectionToStringBuilder[data=random,email=********ov@m***.ru,firstName=V.,lastName=Iv****,middleName=P.,password=********,phone=*********00]"
+                "MaskedReflectionToStringBuilderTest.TestDataMaskedReflectionToStringBuilder[data=random,email=********ov@m***.org,firstName=V.,lastName=Iv****,middleName=P.,password=********,phone=*********00]"
             )
     }
 

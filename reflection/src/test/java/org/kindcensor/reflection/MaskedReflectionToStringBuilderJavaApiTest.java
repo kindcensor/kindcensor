@@ -18,13 +18,13 @@ public class MaskedReflectionToStringBuilderJavaApiTest {
                 "Vladimir",
                 "Petrovich",
                 "Ivanov",
-                "v.p.ivanov@mail.ru",
+                "v.p.ivanov@mail.org",
                 88002000600L,
                 "Swordfish",
                 "random"
         );
         assertThat(data.toString())
-                .isEqualTo("MaskedReflectionToStringBuilderJavaApiTest.TestDataMaskedReflectionToStringBuilder[data=random,email=********ov@m***.ru,firstName=V.,lastName=Iv****,middleName=P.,password=********,phone=#########00]");
+                .isEqualTo("MaskedReflectionToStringBuilderJavaApiTest.TestDataMaskedReflectionToStringBuilder[data=random,email=********ov@m***.org,firstName=V.,lastName=Iv****,middleName=P.,password=********,phone=#########00]");
     }
 
 

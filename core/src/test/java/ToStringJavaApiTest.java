@@ -13,13 +13,13 @@ public class ToStringJavaApiTest {
                 "Vladimir",
                 "Petrovich",
                 "Ivanov",
-                "v.p.ivanov@mail.ru",
+                "v.p.ivanov@mail.org",
                 88002000600L,
                 "Swordfish",
                 "random"
         );
         assertThat(data.toString())
-                .isEqualTo("TestDataSimple{firstName='V.', middleName='P.', lastName='Iv****', email='********ov@m***.ru', phone=*********00, password=********, data='random'}");
+                .isEqualTo("TestDataSimple{firstName='V.', middleName='P.', lastName='Iv****', email='********ov@m***.org', phone=*********00, password=********, data='random'}");
     }
 
     @Test
@@ -28,13 +28,13 @@ public class ToStringJavaApiTest {
                 "Vladimir",
                 "Petrovich",
                 "Ivanov",
-                "v.p.ivanov@mail.ru",
+                "v.p.ivanov@mail.org",
                 88002000600L,
                 "Swordfish",
                 "random"
         );
         assertThat(data.toString())
-                .isEqualTo("ToStringJavaApiTest.TestDataToStringBuilder[firstName=V.,middleName=P.,lastName=Iv****,email=********ov@m***.ru,phone=*********00,password=********,data=random]");
+                .isEqualTo("ToStringJavaApiTest.TestDataToStringBuilder[firstName=V.,middleName=P.,lastName=Iv****,email=********ov@m***.org,phone=*********00,password=********,data=random]");
     }
 
     private static class TestDataSimple {

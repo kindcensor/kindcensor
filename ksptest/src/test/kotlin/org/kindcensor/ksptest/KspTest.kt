@@ -174,10 +174,10 @@ class KspTest {
 
     companion object {
         private const val EXPECTED_TEMPLATE =
-            "%s(firstName=V.,middleName=P.,lastName=Iv****,email=********ov@m***.ru,phone=#########00,password=********,data=random)"
+            "%s(firstName=V.,middleName=P.,lastName=Iv****,email=********ov@m***.org,phone=#########00,password=********,data=random)"
 
         private const val EXPECTED_NO_ANNOTATIONS_TEMPLATE =
-            "%s(firstName=Vladimir,middleName=Petrovich,lastName=Ivanov,email=v.p.ivanov@mail.ru,phone=88002000600,password=Swordfish,data=random)"
+            "%s(firstName=Vladimir,middleName=Petrovich,lastName=Ivanov,email=v.p.ivanov@mail.org,phone=88002000600,password=Swordfish,data=random)"
     }
 
     @Test
@@ -229,7 +229,7 @@ class KspTest {
             "Vladimir",
             "Petrovich",
             "Ivanov",
-            "v.p.ivanov@mail.ru",
+            "v.p.ivanov@mail.org",
             88002000600L,
             "Swordfish",
             "random"

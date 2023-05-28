@@ -14,14 +14,14 @@ class ToStringTest {
             firstName = "Vladimir",
             middleName = "Petrovich",
             lastName = "Ivanov",
-            email = "v.p.ivanov@mail.ru",
+            email = "v.p.ivanov@mail.org",
             phone = 88002000600,
             password = "Swordfish",
             data = "random"
         )
         Assertions.assertThat(data.toString())
             .isEqualTo(
-                "TestData(firstName='V.', middleName='P.', lastName='Iv****', email='********ov@m***.ru', phone='*********00', password='********', data='random')"
+                "TestData(firstName='V.', middleName='P.', lastName='Iv****', email='********ov@m***.org', phone='*********00', password='********', data='random')"
             )
     }
 
@@ -31,14 +31,14 @@ class ToStringTest {
             firstName = "Vladimir",
             middleName = "Petrovich",
             lastName = "Ivanov",
-            email = "v.p.ivanov@mail.ru",
+            email = "v.p.ivanov@mail.org",
             phone = 88002000600,
             password = "Swordfish",
             data = "random"
         )
         Assertions.assertThat(data.toString())
             .isEqualTo(
-                "ToStringTest.TestDataToStringBuilder[firstName=V.,middleName=P.,lastName=Iv****,email=********ov@m***.ru,phone=*********00,password=********,data=random]"
+                "ToStringTest.TestDataToStringBuilder[firstName=V.,middleName=P.,lastName=Iv****,email=********ov@m***.org,phone=*********00,password=********,data=random]"
             )
     }
 

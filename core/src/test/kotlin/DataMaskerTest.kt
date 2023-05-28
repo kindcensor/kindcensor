@@ -1,6 +1,6 @@
 package org.kindcensor
 
-import org.assertj.core.api.Assertions.*
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.kindcensor.core.DataMasker
 import org.kindcensor.core.DataMasker.DEFAULT_HIDDEN_STRING
@@ -127,9 +127,9 @@ class DataMaskerTest {
     fun testMaskEmail() {
         assertThat(maskEmail(null)).isNull()
         assertThat(maskEmail("")).isEqualTo("****")
-        assertThat(maskEmail("a.ivanov@fff.ru")).isEqualTo("******ov@f**.ru")
+        assertThat(maskEmail("a.ivanov@fff.org")).isEqualTo("******ov@f**.org")
         assertThat(maskEmail("a.ivanov@gmail.com")).isEqualTo("******ov@g****.com")
-        assertThat(maskEmail("a.ivanov@fff.ru", mask = '#')).isEqualTo("######ov@f##.ru")
+        assertThat(maskEmail("a.ivanov@fff.org", mask = '#')).isEqualTo("######ov@f##.org")
     }
 
     @Test
