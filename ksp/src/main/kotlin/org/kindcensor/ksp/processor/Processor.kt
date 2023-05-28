@@ -31,7 +31,9 @@ internal class Processor(
 
     private val qualifiedNames: Set<String>
 
-    private val classesIR: MutableList<ClassIR> = mutableListOf()
+    private val classesIR = mutableListOf<ClassIR>()
+
+    private val sourceFiles = mutableSetOf<KSFile>()
 
     init {
         val shortNames = mutableSetOf<String>()
@@ -48,17 +50,10 @@ internal class Processor(
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val classes = resolver.getSymbolsWithAnnotation(targetAnnotationName, inDepth = true)
-            .mapNotNull {
-                if(it is KSClassDeclaration && (it.classKind == CLASS || it.classKind == ENUM_CLASS)) {
-                    it
-                } else {
-                    null
-                }
-            }
-            .toList() // TODO is to list needed
+            .mapNotNull { asTargetClassDeclarationOrNull(it) }
 
         classesIR += classes.map { ClassIR.fromKSP(it, shortNames, qualifiedNames) }
-        val sourceFiles = classes.mapNotNull { it.containingFile }.toSet()
+        sourceFiles += classes.mapNotNull { it.containingFile }
 
         val result = outputGenerator.generate(classesIR.asSequence())
         if (result != null) {
@@ -69,6 +64,16 @@ internal class Processor(
         }
 
         return emptyList()
+    }
+
+    private fun asTargetClassDeclarationOrNull(annotated: KSAnnotated): KSClassDeclaration? {
+        if (annotated !is KSClassDeclaration) {
+            return null
+        }
+        if (!(annotated.classKind == CLASS || annotated.classKind == ENUM_CLASS)) {
+            return null
+        }
+        return annotated
     }
 
     private fun passGeneratedCodeToEnvironment(result: OutputGeneratorResult, sourceFiles: Set<KSFile>) {
