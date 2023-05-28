@@ -12,9 +12,9 @@ object Stringer {
 
     @Suppress("UNCHECKED_CAST")
     private fun init():  Map<KClass<*>, (Any) -> String> {
-        val initializerClass = this::class.java.classLoader.loadClass("org.kindcensor.ksp.Initializer")
+        val initializerClass = this::class.java.classLoader.loadClass(INITIALIZER_QUALIFIED_CLASS)
         val initializer = initializerClass.constructors[0].newInstance()
-        val bindings = initializerClass.getMethod("getBindings").invoke(initializer) as List<Binding>
+        val bindings = initializerClass.getMethod(GET_BINDINGS_METHOD).invoke(initializer) as List<Binding>
         return bindings.associate { it.targetClass to it.toStringFunction }
     }
 

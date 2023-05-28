@@ -10,6 +10,8 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asClassName
 import org.kindcensor.annotation.bind.AnnotationRegistry
 import org.kindcensor.ksp.Binding
+import org.kindcensor.ksp.GET_BINDINGS_METHOD
+import org.kindcensor.ksp.INITIALIZER_CLASS
 import org.kindcensor.ksp.ir.AnnotationIR
 import org.kindcensor.ksp.ir.ClassIR
 
@@ -27,7 +29,7 @@ internal object KotlinPoetOutputGenerator : OutputGenerator {
     }
 
     private fun generateInitializer(classesToFunctions: Map<ClassIR, FunSpec>): TypeSpec {
-        val getBindings = FunSpec.builder("getBindings")
+        val getBindings = FunSpec.builder(GET_BINDINGS_METHOD)
             .addAnnotation(generateSuppressUncheckedCastAnnotation())
             .returns(listOfBindingsTypeName)
             .addCode("return listOf(")
@@ -44,7 +46,7 @@ internal object KotlinPoetOutputGenerator : OutputGenerator {
             .addCode("\n);")
             .build()
 
-        return TypeSpec.classBuilder("Initializer")
+        return TypeSpec.classBuilder(INITIALIZER_CLASS)
             .addModifiers(KModifier.INTERNAL)
             .addFunction(getBindings)
             .build()
