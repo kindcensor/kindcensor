@@ -7,7 +7,7 @@ import com.google.devtools.ksp.symbol.KSPropertyDeclaration
  * @property name The name of the property
  * @property annotation The processed annotation on property if any
  */
-data class PropertyIR(val name: String, val annotation: AnnotationIR?) {
+internal data class PropertyIR(val name: String, val annotation: AnnotationIR?) {
 
     companion object {
 

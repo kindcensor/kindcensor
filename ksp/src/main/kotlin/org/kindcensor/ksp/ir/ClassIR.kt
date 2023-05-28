@@ -8,7 +8,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
  * @property qualifier The qualifier (package) of the class
  * @property properties The properties of the class
  */
-data class ClassIR(
+internal data class ClassIR(
     val simpleName: String,
     val qualifier: String,
     val properties: List<PropertyIR>

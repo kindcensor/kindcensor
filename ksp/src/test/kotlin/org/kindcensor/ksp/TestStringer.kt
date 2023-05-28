@@ -7,7 +7,7 @@ object TestStringer {
 
     @Suppress("UNCHECKED_CAST")
     private fun init(classLoader: ClassLoader): Map<KClass<*>, (Any) -> String> {
-        val initializerClass = classLoader.loadClass("org.kindcensor.ksp.generated.Initializer")
+        val initializerClass = classLoader.loadClass("org.kindcensor.ksp.Initializer")
         val initializer = initializerClass.constructors[0].newInstance()
         val bindings = initializerClass.getMethod("getBindings").invoke(initializer) as List<Binding>
         return bindings.associate { it.targetClass to it.toStringFunction }

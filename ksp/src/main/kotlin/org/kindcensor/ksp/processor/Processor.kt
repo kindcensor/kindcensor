@@ -4,23 +4,24 @@ import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
-import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.ClassKind.*
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
-import com.google.devtools.ksp.symbol.KSVisitorVoid
 import org.kindcensor.annotation.GenerateToString
 import org.kindcensor.annotation.bind.AnnotationRegistry
 import org.kindcensor.ksp.Options
-import org.kindcensor.ksp.generator.Generator
-import org.kindcensor.ksp.generator.GeneratorResult
+import org.kindcensor.ksp.generator.OutputGenerator
+import org.kindcensor.ksp.generator.OutputGeneratorResult
 import org.kindcensor.ksp.ir.ClassIR
 
+/**
+ * The implementation of processor for toString logic
+ */
 internal class Processor(
     private val environment: SymbolProcessorEnvironment,
     private val options: Options,
-    private val generator: Generator
+    private val outputGenerator: OutputGenerator
 ) : SymbolProcessor {
 
     private val targetAnnotationName = GenerateToString::class.qualifiedName
@@ -54,12 +55,12 @@ internal class Processor(
                     null
                 }
             }
-            .toList()
+            .toList() // TODO is to list needed
 
         classesIR += classes.map { ClassIR.fromKSP(it, shortNames, qualifiedNames) }
         val sourceFiles = classes.mapNotNull { it.containingFile }.toSet()
 
-        val result = generator.generate(classesIR.asSequence())
+        val result = outputGenerator.generate(classesIR.asSequence())
         if (result != null) {
             if (options.logGeneratedCode) {
                 environment.logger.info(result.content)
@@ -70,7 +71,7 @@ internal class Processor(
         return emptyList()
     }
 
-    private fun passGeneratedCodeToEnvironment(result: GeneratorResult, sourceFiles: Set<KSFile>) {
+    private fun passGeneratedCodeToEnvironment(result: OutputGeneratorResult, sourceFiles: Set<KSFile>) {
         val dependencies = Dependencies(false, *sourceFiles.toTypedArray())
         val outputStream = try {
             environment.codeGenerator.createNewFile(dependencies, result.packageName, result.fileName)

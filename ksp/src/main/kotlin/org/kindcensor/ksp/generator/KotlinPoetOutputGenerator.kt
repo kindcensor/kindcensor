@@ -4,6 +4,7 @@ import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asClassName
@@ -12,17 +13,17 @@ import org.kindcensor.ksp.Binding
 import org.kindcensor.ksp.ir.AnnotationIR
 import org.kindcensor.ksp.ir.ClassIR
 
-object KotlinPoetDefaultGenerator : Generator {
+internal object KotlinPoetOutputGenerator : OutputGenerator {
 
     private val listOfBindingsTypeName = List::class.asClassName().parameterizedBy(Binding::class.asClassName())
 
-    override fun generate(classesIR: Sequence<ClassIR>): GeneratorResult {
+    override fun generate(classesIR: Sequence<ClassIR>): OutputGeneratorResult {
         val classesToFunctions = classesIR.associateWith { generateToString(it) }
-        return FileSpec.builder("org.kindcensor.ksp.generated", "ToStringFunctions")
+        return FileSpec.builder("org.kindcensor.ksp", "ToStringFunctions")
             .also { builder -> classesToFunctions.forEach { (_, f) -> builder.addFunction(f) } }
             .addType(generateInitializer(classesToFunctions))
             .build()
-            .let { GeneratorResult(it.name, it.packageName, it.toString()) }
+            .let { OutputGeneratorResult(it.name, it.packageName, it.toString()) }
     }
 
     private fun generateInitializer(classesToFunctions: Map<ClassIR, FunSpec>): TypeSpec {
@@ -44,6 +45,7 @@ object KotlinPoetDefaultGenerator : Generator {
             .build()
 
         return TypeSpec.classBuilder("Initializer")
+            .addModifiers(KModifier.INTERNAL)
             .addFunction(getBindings)
             .build()
     }
@@ -57,6 +59,7 @@ object KotlinPoetDefaultGenerator : Generator {
     private fun generateToString(clazz: ClassIR): FunSpec {
         val parameterClassName = ClassName(clazz.qualifier, clazz.simpleName)
         return FunSpec.builder(makeName(clazz.qualifiedName))
+            .addModifiers(KModifier.PRIVATE)
             .returns(String::class)
             .addParameter("subject", parameterClassName)
             .beginControlFlow("return buildString")

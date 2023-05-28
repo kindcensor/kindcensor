@@ -5,4 +5,4 @@ package org.kindcensor.ksp.ir
  * @property name The of the argument
  * @property value The value of the argument
  */
-data class AnnotationArgumentIR(val name: String, val value: Any?)
+internal data class AnnotationArgumentIR(val name: String, val value: Any?)

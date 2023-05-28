@@ -7,7 +7,7 @@ import com.google.devtools.ksp.symbol.KSAnnotation
  * @property simpleName The short name of annotation class
  * @property arguments The annotation arguments
  */
-data class AnnotationIR(val simpleName: String, val arguments: List<AnnotationArgumentIR>) {
+internal data class AnnotationIR(val simpleName: String, val arguments: List<AnnotationArgumentIR>) {
 
     companion object {
 
