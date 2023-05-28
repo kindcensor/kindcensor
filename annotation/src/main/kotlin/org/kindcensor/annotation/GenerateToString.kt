@@ -1,3 +1,7 @@
 package org.kindcensor.annotation
 
-annotation class GenerateToString()
+/**
+ * Indicates that `toString` logic must be generated for class
+ */
+@Target(AnnotationTarget.CLASS)
+annotation class GenerateToString
