@@ -19,7 +19,7 @@ internal object KotlinPoetOutputGenerator : OutputGenerator {
 
     private val listOfBindingsTypeName = List::class.asClassName().parameterizedBy(Binding::class.asClassName())
 
-    override fun generate(classesIR: Sequence<ClassIR>): OutputGeneratorResult {
+    override fun generate(classesIR: Iterable<ClassIR>): OutputGeneratorResult {
         val classesToFunctions = classesIR.associateWith { generateToString(it) }
         return FileSpec.builder("org.kindcensor.ksp", "ToStringFunctions")
             .also { builder -> classesToFunctions.forEach { (_, f) -> builder.addFunction(f) } }

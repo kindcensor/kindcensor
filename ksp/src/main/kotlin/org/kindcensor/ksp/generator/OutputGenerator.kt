@@ -10,6 +10,6 @@ internal fun interface OutputGenerator {
     /**
      * Generate information about files bases on bunch of [ClassIR]
      */
-    fun generate(classesIR: Sequence<ClassIR>): OutputGeneratorResult?
+    fun generate(classesIR: Iterable<ClassIR>): OutputGeneratorResult?
 
 }

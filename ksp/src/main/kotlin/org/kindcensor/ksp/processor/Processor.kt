@@ -55,12 +55,12 @@ internal class Processor(
         classesIR += classes.map { ClassIR.fromKSP(it, shortNames, qualifiedNames) }
         sourceFiles += classes.mapNotNull { it.containingFile }
 
-        val result = outputGenerator.generate(classesIR.asSequence())
+        val result = outputGenerator.generate(classesIR)
         if (result != null) {
             if (options.logGeneratedCode) {
                 environment.logger.info(result.content)
             }
-            passGeneratedCodeToEnvironment(result, sourceFiles)
+            writeResult(result, sourceFiles)
         }
 
         return emptyList()
@@ -76,7 +76,7 @@ internal class Processor(
         return annotated
     }
 
-    private fun passGeneratedCodeToEnvironment(result: OutputGeneratorResult, sourceFiles: Set<KSFile>) {
+    private fun writeResult(result: OutputGeneratorResult, sourceFiles: Set<KSFile>) {
         val dependencies = Dependencies(false, *sourceFiles.toTypedArray())
         val outputStream = try {
             environment.codeGenerator.createNewFile(dependencies, result.packageName, result.fileName)
