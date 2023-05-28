@@ -65,7 +65,7 @@ internal object KotlinPoetOutputGenerator : OutputGenerator {
             .returns(String::class)
             .addParameter("subject", parameterClassName)
             .beginControlFlow("return buildString")
-            .addStatement("append(%S)", clazz.simpleName + '(')
+            .addStatement("append(%S)", getClassNameForToString(clazz) + '(')
             .also { builder ->
                 clazz.properties.forEachIndexed { index, (name, annotation) ->
                     appendProperty(builder, name, annotation)
@@ -77,6 +77,10 @@ internal object KotlinPoetOutputGenerator : OutputGenerator {
             .addStatement("append(')')")
             .endControlFlow()
             .build()
+    }
+
+    private fun getClassNameForToString(classIR: ClassIR): String {
+        return classIR.parentClasses.joinToString(postfix = classIR.simpleName) { "$it." }
     }
 
     private fun appendProperty(

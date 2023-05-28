@@ -181,50 +181,53 @@ class KspTest {
     }
 
     @Test
-    fun `top level data class`() = assertForClass<Data>(EXPECTED_TEMPLATE)
+    fun `top level data class`() = assertForClass<Data>(EXPECTED_TEMPLATE, "Data")
 
     @Test
-    fun `top level regular class`() = assertForClass<Regular>(EXPECTED_TEMPLATE)
+    fun `top level regular class`() = assertForClass<Regular>(EXPECTED_TEMPLATE, "Regular")
 
     @Test
     fun `top level regular class without annotations on fields`() =
-        assertForClass<RegularNoFieldAnnotations>(EXPECTED_NO_ANNOTATIONS_TEMPLATE)
+        assertForClass<RegularNoFieldAnnotations>(EXPECTED_NO_ANNOTATIONS_TEMPLATE, "RegularNoFieldAnnotations")
 
     @Test
     fun `top level data class without annotations on fields`() =
-        assertForClass<DataNoFieldAnnotations>(EXPECTED_NO_ANNOTATIONS_TEMPLATE)
+        assertForClass<DataNoFieldAnnotations>(EXPECTED_NO_ANNOTATIONS_TEMPLATE, "DataNoFieldAnnotations")
 
     @Test
     fun `top level regular class without any annotations`() =
-        assertForClass<RegularNoAnnotations>(EXPECTED_NO_ANNOTATIONS_TEMPLATE)
+        assertForClass<RegularNoAnnotations>(EXPECTED_NO_ANNOTATIONS_TEMPLATE, "RegularNoAnnotations")
 
     @Test
     fun `top level data class without any annotations`() =
-        assertForClass<DataNoAnnotations>(EXPECTED_NO_ANNOTATIONS_TEMPLATE)
+        assertForClass<DataNoAnnotations>(EXPECTED_NO_ANNOTATIONS_TEMPLATE, "DataNoAnnotations")
 
     @Test
-    fun `nested data class`() = assertForClass<Nested.Data>(EXPECTED_TEMPLATE)
+    fun `nested data class`() = assertForClass<Nested.Data>(EXPECTED_TEMPLATE, "Nested.Data")
 
     @Test
-    fun `nested regular class`() = assertForClass<Nested.Regular>(EXPECTED_TEMPLATE)
+    fun `nested regular class`() = assertForClass<Nested.Regular>(EXPECTED_TEMPLATE, "Nested.Regular")
 
     @Test
     fun `nested regular class without annotations on fields`() =
-        assertForClass<Nested.RegularNoFieldAnnotations>(EXPECTED_NO_ANNOTATIONS_TEMPLATE)
+        assertForClass<Nested.RegularNoFieldAnnotations>(
+            EXPECTED_NO_ANNOTATIONS_TEMPLATE,
+            "Nested.RegularNoFieldAnnotations"
+        )
 
     @Test
     fun `nested data class without annotations on fields`() =
-        assertForClass<Nested.DataNoFieldAnnotations>(EXPECTED_NO_ANNOTATIONS_TEMPLATE)
+        assertForClass<Nested.DataNoFieldAnnotations>(EXPECTED_NO_ANNOTATIONS_TEMPLATE, "Nested.DataNoFieldAnnotations")
 
     @Test
     fun `nested regular class without any annotations`() =
-        assertForClass<Nested.RegularNoAnnotations>(EXPECTED_NO_ANNOTATIONS_TEMPLATE)
+        assertForClass<Nested.RegularNoAnnotations>(EXPECTED_NO_ANNOTATIONS_TEMPLATE, "Nested.RegularNoAnnotations")
 
     @Test
     fun `nested data class without any annotations`() =
-        assertForClass<Nested.DataNoAnnotations>(EXPECTED_NO_ANNOTATIONS_TEMPLATE)
+        assertForClass<Nested.DataNoAnnotations>(EXPECTED_NO_ANNOTATIONS_TEMPLATE, "Nested.DataNoAnnotations")
 
-    private inline fun <reified T> assertForClass(expectedTemplate: String) {
+    private inline fun <reified T> assertForClass(expectedTemplate: String, classNameInToString: String) {
         val data = T::class.java.constructors[0].newInstance(
             "Vladimir",
             "Petrovich",
@@ -234,6 +237,6 @@ class KspTest {
             "Swordfish",
             "random"
         )
-        assertThat(data.toString()).isEqualTo(expectedTemplate.format(T::class.simpleName))
+        assertThat(data.toString()).isEqualTo(expectedTemplate.format(classNameInToString))
     }
 }

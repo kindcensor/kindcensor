@@ -10,6 +10,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
  */
 internal data class ClassIR(
     val simpleName: String,
+    val parentClasses: List<String>,
     val qualifier: String,
     val properties: List<PropertyIR>
 ) {
@@ -30,12 +31,20 @@ internal data class ClassIR(
             qualifiedNames: Set<String>
         ) = ClassIR(
             simpleName = declaration.simpleName.getShortName(),
+            parentClasses = getParentClasses(declaration),
             qualifier = declaration.qualifiedName?.getQualifier() ?: error("Failed to get for $declaration"),
             properties = declaration.getAllProperties()
                 .map { PropertyIR.fromKSP(it, shortNames, qualifiedNames) }
                 .toList()
         )
 
+        private fun getParentClasses(declaration: KSClassDeclaration) = buildList {
+            var current = declaration.parent
+            while (current is KSClassDeclaration) {
+                add(current.simpleName.getShortName())
+                current = current.parent
+            }
+        }
     }
 }
 

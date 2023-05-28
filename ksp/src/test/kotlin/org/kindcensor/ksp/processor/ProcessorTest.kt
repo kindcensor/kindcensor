@@ -78,7 +78,7 @@ class ProcessorTest {
         )
 
         val data = getObject("$PACKAGE_NAME.$PARENT_CLASS_NAME\$$CLASS_NAME", result)
-        assertThat(data.toString()).isEqualTo(EXPECTED_TEMPLATE.format(CLASS_NAME))
+        assertThat(data.toString()).isEqualTo(EXPECTED_TEMPLATE.format("$PARENT_CLASS_NAME.$CLASS_NAME"))
     }
 
     @Test
