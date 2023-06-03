@@ -1,7 +1,7 @@
+import io.github.kindcensor.core.DataMasker;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.jupiter.api.Test;
-import org.kindcensor.core.DataMasker;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
