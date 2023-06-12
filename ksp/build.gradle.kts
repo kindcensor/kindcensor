@@ -13,3 +13,12 @@ dependencies {
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing:$compileTestingVersion")
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:$compileTestingVersion")
 }
+
+publishing {
+    publications {
+        register("ksp", MavenPublication::class) {
+            from(components["java"])
+            artifactId = "ksp"
+        }
+    }
+}
