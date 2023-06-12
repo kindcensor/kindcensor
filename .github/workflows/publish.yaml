@@ -6,7 +6,7 @@ on:
       - 'release/**'
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,14 +16,14 @@ jobs:
         with:
           java-version: '11'
           distribution: 'adopt'
-      - name: Build with Gradle
-        uses: gradle/gradle-build-action@v2.4.2
-        with:
-          arguments: build
-      - name: Publish core
+      - name: Publish artifacts
         uses: gradle/gradle-build-action@v2.4.2
         env:
           ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.SONATYPEPASSWORD }}
           ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.SONATYPEUSERNAME }}
         with:
-          arguments: :core:publishCorePublicationToSonatypeRepository
+          arguments: >-
+            :core:publishCorePublicationToSonatypeRepository
+            :ksp:publishKspPublicationToSonatypeRepository
+            :annotation:publishAnnotationPublicationToSonatypeRepository
+            :reflection:publishReflectionPublicationToSonatypeRepository
